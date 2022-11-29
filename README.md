@@ -9,4 +9,4 @@ You are given a large JSON file, ````data/test.json````. The file has been deliv
 - This is a common problem that we've seen before and we will need to be able to use the program again on files much larger than the example.
 - The primary goal is performance. The process will have to be run frequently for years to come, so it is important that it be as efficient as possible. It also needs to finish in time on short notice.
 
-Fork this repository and create a feature branch implementing your solution. When complete, put a PR in to this repository and tag ````@jgmartin```` and ````@waysidekoi```` for review. Thanks and good luck!
+Create a new repository implementing your solution. When complete, share with ````@jgmartin```` and ````@waysidekoi```` for review. Thanks and good luck!

@@ -1,41 +1,54 @@
-use std::io::{self, Read, Write};
+use std::{
+    fs::File,
+    io::{self, BufReader, Read, Write},
+};
 
-const BUF_SIZE: usize = 64 * 1024;
+use clap::Parser;
+use std::path::PathBuf;
 
-fn scan<R>(mut input: R, buf: &mut [u8]) -> io::Result<()>
-where
-    R: Read,
-{
-    let mut writer = std::io::stdout().lock();
+const BUF_SIZE: usize = 8192; // 8KB
 
-    while let Ok(size) = input.read(buf) {
-        if size == 0 {
-            break;
-        }
-        for i in 0..size {
-            if buf[i] == b';' {
-                buf[i] = b':';
+#[derive(Parser, Debug)]
+struct Args {
+    #[clap(short, long)]
+    input: Option<PathBuf>,
+}
+
+fn scan<R: Read, W: Write>(mut reader: R, mut writer: W, buffer: &mut [u8]) -> io::Result<()> {
+    fn replace_byte(haystack: &mut [u8], needle: u8, replace: u8) {
+        for i in haystack {
+            if *i == needle {
+                *i = replace;
             }
         }
-        write(&mut writer, &buf, size)?;
+    }
+
+    while let Ok(byte_size) = reader.read(buffer) {
+        if byte_size == 0 {
+            break;
+        }
+
+        replace_byte(&mut buffer[0..byte_size], b';', b':');
+
+        writer.write_all(&buffer[0..byte_size])?;
     }
     Ok(())
 }
 
-fn write<W>(output: &mut W, buf: &[u8], bytes: usize) -> io::Result<()>
-where
-    W: Write,
-{
-    output.write_all(&buf)?;
-    Ok(())
-}
-
 fn main() -> Result<(), io::Error> {
-    // let _args = Args::parse();
+    let args = Args::parse();
     let mut buf: [u8; BUF_SIZE] = [0u8; BUF_SIZE]; // 8k buffer, aligned on memory page size
 
-    let input = std::io::stdin().lock();
-    let output = std::io::stdout().lock();
+    let writer = std::io::stdout().lock();
 
-    scan(input, &mut buf)
+    match args.input {
+        Some(file) => {
+            let reader = BufReader::new(File::open(file)?);
+            scan(reader, writer, &mut buf)
+        }
+        None => {
+            let reader = std::io::stdin().lock();
+            scan(reader, writer, &mut buf)
+        }
+    }
 }

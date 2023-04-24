@@ -10,3 +10,14 @@ You are given a large JSON file, ````data/test.json````. The file has been deliv
 - The primary goal is performance. The process will have to be run frequently for years to come, so it is important that it be as efficient as possible. It also needs to finish in time on short notice.
 
 Create a new repository implementing your solution. When complete, share with ````@jgmartin```` and ````@waysidekoi```` for review. Thanks and good luck!
+
+
+# Running
+The code can be run using cargo directly: `cargo run --release -- --input data/test.json`
+
+Alternatively, pipe the content into the application:
+```bash
+cargo build --release && \
+    cat data/test.json | target/release/test-rs 
+```
+
